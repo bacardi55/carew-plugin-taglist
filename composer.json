@@ -1,0 +1,27 @@
+{
+    "name"        : "bacardi55/carew-plugin-taglist",
+    "description" : "FastNav plugin for carew",
+    "license"     : "MIT",
+    "homepage"    : "http://github.com/bacardi55/carew-plugin-taglist",
+    "keywords"    : ["carew", "plugin", "taglist"],
+    "authors"     : [
+        {
+            "name"     : "Raphaël Khaïat (bacardi55)",
+            "email"    : "raphael@khaiat.org",
+            "homepage" : "https://bacardi55.org"
+        }
+    ],
+    "require": {
+        "carew/carew"    : "~1.6",
+        "easybook/geshi" : "dev-master@dev"
+    },
+    "autoload": {
+        "psr-0": { "Carew\\Plugin\\TagList": ""}
+    },
+    "target-dir": "Carew/Plugin/TagList",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    }
+}

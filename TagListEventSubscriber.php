@@ -11,45 +11,54 @@ class TagListEventSubscriber implements EventSubscriberInterface
 {
     protected $twig;
     protected $tagList;
+    protected $url_absolute;
 
-    public function __construct(Twig_Environment $twig)
+    public function __construct(Twig_Environment $twig, $config)
     {
         $this->tagList = array();
         $this->twig = $twig;
+        $this->url_absolute = isset($config['site']['url_absolute']) ?
+            $config['site']['url_absolute'] : '';
     }
 
-    public function onTags($event)
+    public function onDocuments($event)
     {
-        $this->twig->addGlobal(
-            'tagList',
-            $this->createTagsList($event->getSubject())
-        );
+        $this->createTagsList($event->getSubject());
+
+        $twigGlobals = $this->twig->getGlobals();
+        $globals = $twigGlobals['carew'];
+        $globals->tagList = $this->tagList;
     }
 
     public static function getSubscribedEvents()
     {
         return array(
-            Events::TAGS => array(
-                array('onTags', 256),
+            Events::DOCUMENTS=> array(
+                array('onDocuments', 256),
             ),
         );
     }
 
-    protected function createTagsList($tags)
+    protected function createTagsList($documents)
     {
-        foreach ($tags as $tag) {
-            $vars = $tag->getVars();
-            if (isset($vars['tag'])) {
-                $this->tagList[] = array(
-                    'name' => $vars['tag'],
-                    'nbPosts' => isset($vars['posts']) ? count($vars['posts']) : 0,
-                    'path' => $tag->getPath(),
-                );
+        $list = array();
+        foreach ($documents as $document) {
+            $tags = $document->getTags();
+            foreach ($tags as $tag) {
+                if (isset($list[$tag]['nbPosts'])) {
+                    ++ $list[$tag]['nbPosts'];
+                }
+                else {
+                    $list[$tag] = array(
+                        'nbPosts' => 1,
+                        'path' => $this->url_absolute
+                            . '/tags/' . $tag . '.html',
+                        'name' => $tag,
+                    );
+                }
             }
-
         }
-
-        return $this->tagList;
+        $this->tagList = $list;
     }
 }
 

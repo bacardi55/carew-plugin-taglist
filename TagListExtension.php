@@ -10,7 +10,9 @@ class TagListExtension implements ExtensionInterface
     public function register(Carew $carew)
     {
         $eventDispatcher = $carew->getEventDispatcher() ->addSubscriber(
-            new TagListEventSubscriber($carew->getContainer()->offsetGet('twig'))
+            new TagListEventSubscriber(
+                $carew->getContainer()->offsetGet('twig')
+            )
         );
     }
 }

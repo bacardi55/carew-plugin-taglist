@@ -18,38 +18,41 @@ class TagListEventSubscriber implements EventSubscriberInterface
         $this->twig = $twig;
     }
 
-    public function onTags($event)
+    public function onDocumentDecoration($event)
     {
-        $this->twig->addGlobal(
-            'tagList',
-            $this->createTagsList($event->getSubject())
-        );
+        $this->createTagsList($event->getSubject());
+
+        $twigGlobals = $this->twig->getGlobals();
+        $globals = $twigGlobals['carew'];
+        $globals->tagList = $this->tagList;
     }
 
     public static function getSubscribedEvents()
     {
         return array(
-            Events::TAGS => array(
-                array('onTags', 256),
+            Events::DOCUMENT_DECORATION=> array(
+                array('onDocumentDecoration', 256),
             ),
         );
     }
 
-    protected function createTagsList($tags)
+    protected function createTagsList($documents)
     {
-        foreach ($tags as $tag) {
-            $vars = $tag->getVars();
-            if (isset($vars['tag'])) {
-                $this->tagList[] = array(
-                    'name' => $vars['tag'],
-                    'nbPosts' => isset($vars['posts']) ? count($vars['posts']) : 0,
-                    'path' => $tag->getPath(),
-                );
+        foreach ($documents as $document) {
+            if ($document->getType() == Document::TYPE_UNKNOWN) {
+                $name = substr($document->getFilePath(), strlen('tags/'));
+                $vars = $document->getVars();
+                $count = isset($vars['documents']) ?
+                    count($vars['documents']) : 0;
+                if ($count && $name) {
+                    $this->tagList[] = array(
+                        'name' => $name,
+                        'nbPosts' => $count,
+                        'path' => $document->getPath(),
+                    );
+                }
             }
-
         }
-
-        return $this->tagList;
     }
 }
 
